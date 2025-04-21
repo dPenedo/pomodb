@@ -3,12 +3,15 @@ from pomodoro.cli.parser import parse_args
 from pomodoro.countdown import countdown
 from pomodoro.utils.format import prCyan
 from pomodoro.utils.constants import WORK, REST
+from pomodoro.utils.total_time import get_total_time
+
 
 
 def main():
     args = parse_args()
 
     if args.command == "start":
+        print(get_total_time(args.number_of_pomodoros, WORK["minutes"], REST["minutes"]))
         try:
             for i in range(0, args.number_of_pomodoros):
                 position_of_pomodoros = f"{i+1} of {args.number_of_pomodoros}"

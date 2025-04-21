@@ -6,8 +6,7 @@ import os
 
 
 def countdown(minutes, message, action="focus", tag=None):
-    # WARN: 60
-    seconds = minutes * 2
+    seconds = minutes * 60
     print(f"{message} started")
     if tag is None:
         print(f"\rGet {action} for:")
@@ -19,6 +18,9 @@ def countdown(minutes, message, action="focus", tag=None):
         time.sleep(1)
 
     print(f"{message} finished")
-    log_a_pomodoro(minutes, message, tag)
-    os.system('notify-send -w -t 15000 "' + message + ' completado!"&')
+    if action=="focus":
+        log_a_pomodoro(minutes, message, tag)
+    # El parámetro -w no funciona en linux-mint
+    # os.system('notify-send -w -t 15000 "' + message + ' completado!"&')
+    os.system('notify-send -u critical -t 15000 "' + message + ' completado!"&')
     return True
