@@ -20,7 +20,8 @@ def countdown(minutes, message, action="focus", tag=None):
     print(f"{message} finished")
     if action=="focus":
         log_a_pomodoro(minutes, message, tag)
-    # El parámetro -w no funciona en linux-mint
-    # os.system('notify-send -w -t 15000 "' + message + ' completado!"&')
-    os.system('notify-send -u critical -t 15000 "' + message + ' completado!"&')
+    # WARN: El parámetro -w no funciona en linux-mint
+    
+    # os.system('notify-send -w -t 15000 "' + message + ' completed!"&')
+    os.system('notify-send -u critical -t 15000 "' + message + ' completed!"&')
     return True
