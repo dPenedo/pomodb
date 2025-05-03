@@ -6,28 +6,31 @@ from pomodoro.utils.constants import WORK, REST
 from pomodoro.utils.total_time import get_total_time
 
 
-
 def main():
     args = parse_args()
 
-    if args.command == "start":
-        print(get_total_time(args.number_of_pomodoros, WORK["minutes"], REST["minutes"]))
+    command = getattr(args, "command", None)
+    number_of_pomodoros = getattr(args, "number_of_pomodoros", 4)
+    tags_of_pomodoros = getattr(args, "tags_of_pomodoros", None)
+
+    if command == "start":
+        print(get_total_time(number_of_pomodoros, WORK["minutes"], REST["minutes"]))
         try:
-            for i in range(0, args.number_of_pomodoros):
-                position_of_pomodoros = f"{i+1} of {args.number_of_pomodoros}"
+            for i in range(0, number_of_pomodoros):
+                position_of_pomodoros = f"{i+1} of {number_of_pomodoros}"
                 print(f"You are on pomodoro {prCyan(position_of_pomodoros)}")
-                countdown(
+                _ = countdown(
                     WORK["minutes"],
                     WORK["text"],
                     WORK["action"],
-                    args.tags_of_pomodoros,
+                    tags_of_pomodoros,
                 )
-                countdown(REST["minutes"], REST["text"], REST["action"])
+                _ = countdown(REST["minutes"], REST["text"], REST["action"])
         except KeyboardInterrupt:
             print("\n👋 Session is over.")
-    elif args.command == "help":
+    elif command == "help":
         show_help()
-    elif args.command == "stats":
+    elif command == "stats":
         show_stats()
     else:
         print("Unknown command")
