@@ -1,5 +1,5 @@
+from pomodoro.db.queries import log_a_pomodoro
 from pomodoro.utils.format import format_time, prRed
-from pomodoro.log import log_a_pomodoro
 import time
 import sys
 import os
@@ -23,7 +23,6 @@ def countdown(
     if action == "focus":
         log_a_pomodoro(minutes, message, tag)
     # WARN: El parámetro -w no funciona en linux-mint
-
     # os.system('notify-send -w -t 15000 "' + message + ' completed!"&')
     _ = os.system('notify-send -u critical -t 15000 "' + message + ' completed!"&')
     return True

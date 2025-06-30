@@ -1,6 +1,8 @@
 import os
 
+
 def show_stats():
+    # TODO: query()
     log_file = "./log.txt"
     if not os.path.exists(log_file):
         print("There are no stats yet")
