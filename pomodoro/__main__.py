@@ -1,8 +1,10 @@
 from pomodoro.cli.commands import show_help, show_stats
 from pomodoro.cli.parser import parse_args
 from pomodoro.countdown import countdown
+from pomodoro.db.queries import get_sum_of_minutes
 from pomodoro.utils.format import prCyan
 from pomodoro.utils.constants import WORK, REST
+from pomodoro.utils.stats import get_stats
 from pomodoro.utils.total_time import get_total_time
 
 
@@ -31,7 +33,7 @@ def main():
     elif command == "help":
         show_help()
     elif command == "stats":
-        show_stats()
+        print(get_stats())
     else:
         print("Unknown command")
 
