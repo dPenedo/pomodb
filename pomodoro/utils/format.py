@@ -23,19 +23,26 @@ def prPurple(skk: str):
     return "\033[95m{}\033[00m".format(skk)
 
 
-def print_pomodoros_table(data: List[List[str]], headers: List[str]) -> str:
+def print_pomodoros_table(
+    data: List[List[str]], headers: List[str], title: str = "LAST 20 POMODOROS"
+) -> str:
     col_widths = [
         max(len(str(item)) for item in col) for col in zip(*([headers] + data))
     ]
-    row_format = f"  {prPurple("│")} ".join([f"{{:<{width}}}" for width in col_widths])
-    table_str = ""
+    row_format = f"  {prPurple('│')} ".join([f"{{:<{width}}}" for width in col_widths])
+    total_width = sum(col_widths) + (
+        3 * (len(col_widths) - 1)
+    )  # 3 por los separadores " │ "
+    table_lines = []
+    separator = "─" * total_width
+    table_lines.append(prPurple(f" {title} ".center(total_width, "─")))
     header_line = row_format.format(*headers)
-    separator = "─".join(["─" * (width + 2) for width in col_widths])
-    table_str += prPurple(header_line) + "\n"
-    table_str += prPurple(separator) + "\n"
+    table_lines.append(prPurple(header_line))
+    table_lines.append(prPurple(separator))
     for row in data:
-        table_str += row_format.format(*row) + "\n"
-    return table_str
+        table_lines.append(row_format.format(*row))
+    table_lines.append(prPurple(separator))
+    return "\n".join(table_lines)
 
 
 def print_stats_from_dict(stats: Dict[str, Union[str, int, float, List[str]]]) -> str:

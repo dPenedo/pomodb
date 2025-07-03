@@ -1,104 +1,97 @@
 from typing import List
+from pomodoro.db.db_utils import execute_non_query, execute_query
 from pomodoro.db.models import get_db_connection
 from pomodoro.utils.constants import POMODORO_TABLE
 
 
 def log_a_pomodoro(minutes: int, message: str, tag: str | None):
-    connection = get_db_connection()
-
-    if connection:
-        try:
-            cursor = connection.cursor()
-            _ = cursor.execute(
-                f"""
-            INSERT INTO {POMODORO_TABLE} ( minutes, message, tag)
-            VALUES (?, ?, ?)
-            """,
-                (minutes, message, tag or ""),
-            )
-            _ = connection.commit()
-            print("Pomodo registered")
-        except Exception as e:
-            print(f"Error registering de pomodoro {e}")
-        finally:
-            connection.close()
-    else:
-        print("Failed to establish connection")
+    query = f"""
+        INSERT INTO {POMODORO_TABLE} ( minutes, message, tag)
+        VALUES (?, ?, ?)
+    """
+    success = execute_non_query(
+        query,
+        (
+            minutes,
+            message,
+            tag,
+        ),
+    )
+    if success:
+        print("Pomodo registered")
 
 
-def get_sum_of_minutes(time: int) -> int:
-    connection = get_db_connection()
-    number_of_minutes = -1
-    if time == -1:
-        time = 99999
-
-    if connection:
-        try:
-            cursor = connection.cursor()
-            _ = cursor.execute(
-                f"""
-                SELECT SUM(minutes)
-                FROM {POMODORO_TABLE}
-                WHERE created_at >= (SELECT DATETIME('now', '-{time} days'))
-                """
-            )
-            sum_of_minutes = cursor.fetchall()
-            number_of_minutes = sum_of_minutes[0][0]
-            cursor.close()
-        except Exception as e:
-            print(f"Error accessing to sum of minutes {e}")
-
-    else:
-        print("Failed to access to sum of minutes")
-
-    return number_of_minutes
+def get_sum_of_pomodoros(days: int) -> int:
+    interval = f"-{9999 if days == -1 else days} days"
+    query = f"""
+        SELECT COUNT(*)
+        FROM {POMODORO_TABLE}
+        WHERE created_at >= (SELECT DATETIME('now', ?))
+    """
+    rows = execute_query(query, (interval,))
+    return rows[0][0] if rows else 0
 
 
-def get_list_of_pomodoros(time: int) -> List[str]:
+def get_list_of_pomodoros(days: int, limit: int) -> List[str]:
+    interval = f"-{9999 if days == -1 else days} days"
     list_of_pomodoros = ["There are no pomodoros yet"]
-    connection = get_db_connection()
-    if connection:
-        try:
-            cursor = connection.cursor()
-            _ = cursor.execute(
-                f"""
-                SELECT * FROM {POMODORO_TABLE}
-                WHERE created_at >= (SELECT DATETIME('now', '-{time} days'))
-                """
-            )
-            list_of_pomodoros_tuples = cursor.fetchall()
-            print("list_of_pomodoros_tuples => ", list_of_pomodoros_tuples)
-            list_of_pomodoros.clear()
-            # WARN: no va
-            # for e in list_of_pomodoros_tuples:
-            #     list_of_pomodoros.append(str(e))
-            print("list_of_pomodoros => ", list_of_pomodoros)
-        except Exception as e:
-            print(f"Error accessing to the list of pomodoros: {e}")
+    query = f"""
+        SELECT *
+        FROM {POMODORO_TABLE}
+        WHERE created_at >= (SELECT DATETIME('now', ?))
+        ORDER  BY created_at DESC
+        LIMIT ?
+    """
+    rows = execute_query(
+        query,
+        (
+            interval,
+            limit,
+        ),
+    )
+    if rows:
+        list_of_pomodoros.clear()
+    for e in rows:
+        pomodoro_list = []
+        pomodoro_list.append(str(e[1]))  # Date
+        pomodoro_list.append(str(e[2]))  # Duration
+        pomodoro_list.append(str(e[4]))  # Tag
+        list_of_pomodoros.append(pomodoro_list)
 
     return list_of_pomodoros
 
 
-def get_list_of_tags(time: int) -> List[str]:
-    connection = get_db_connection()
+def get_list_of_tags(days: int) -> List[str]:
+    interval = f"-{9999 if days == -1 else days} days"
     list_of_tags = ["There are not tags yet"]
-    if connection:
-        try:
-            cursor = connection.cursor()
-            _ = cursor.execute(
-                f"""
-                SELECT DISTINCT tag
-                FROM {POMODORO_TABLE}
-                WHERE created_at >= (SELECT DATETIME('now', '-{time} days'))
-                """
-            )
-            list_of_tag_tuples = cursor.fetchall()
-            list_of_tags.clear()
-            for e in list_of_tag_tuples:
-                list_of_tags.append(str(e[0]))
-            cursor.close()
-        except Exception as e:
-            print(f"Error accessing to the list of tags {e}")
-    else:
-        print("Failed to access to list of tags")
+    query = f"""
+            SELECT DISTINCT tag
+            FROM {POMODORO_TABLE}
+            WHERE created_at >= (SELECT DATETIME('now', ?))
+        """
+    rows = execute_query(query, (interval,))
+    if rows:
+        list_of_tags.clear()
+    for e in rows:
+        list_of_tags.append(str(e[0]))
     return list_of_tags
+
+
+def get_average_of_days(days: int) -> int:
+    interval = f"-{days} days"
+    average_of_tags = -1
+    query = f"""
+            SELECT COUNT(minutes)/ ?
+            FROM {POMODORO_TABLE}
+            WHERE created_at >= (SELECT DATETIME('now', ?))
+        """
+    average_output = execute_query(
+        query,
+        (
+            days,
+            interval,
+        ),
+    )
+    if average_output:
+        average_of_tags = int(average_output[0][0])
+    return average_of_tags
