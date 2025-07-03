@@ -7,7 +7,7 @@ A lightweight, no-dependency command-line Pomodoro timer with persistent stats a
 ## ✨ Features
 
 - ⏱ Start and customize Pomodoro sessions
-- 🏷 Add tags to your sessions
+- 📌 Add tags to your sessions
 - 📊 Track stats over time with SQLite
 - 🔔 Sends desktop notifications on Linux when pomodoros and breaks end
 - 📦 No external dependencies
@@ -42,38 +42,13 @@ Each completed pomodoro is stored in a local SQLite database with the following 
 - 🕒 `created_at`: Date and time when the session ended
 - ⏳ `minutes`: Duration of the session
 - 📝 `message`: Currently always should show "🍅 Pomodoro", in the future it could be expanded
-- 🏷 `tag`: Optional tag for filtering or grouping
+- 📌 `tag`: Optional tag for filtering or grouping
 
 This allows you to:
 
 - Count sessions in a given time range
 - Calculate your daily average
 - List recent pomodoros with tags or notes
-
----
-
-## 📁 Project Structure
-
-├──  pomodoro
-│ ├──  cli
-│ │ ├──  **pycache**
-│ │ ├──  commands.py
-│ │ └──  parser.py
-│ ├──  db
-│ │ ├──  db_utils.py
-│ │ ├──  models.py
-│ │ └──  queries.py
-│ ├──  utils
-│ │ ├──  constants.py
-│ │ ├──  format.py
-│ │ ├──  stats.py
-│ │ └──  total_time.py
-│ ├──  **main**.py
-│ └──  countdown.py
-├──  pomodoros.db
-├──  LICENSE
-├──  README.md
-└──  setup.py
 
 ---
 
@@ -85,4 +60,5 @@ If you're on Linux and have `notify-send` available, you’ll get desktop notifi
 
 ## License
 
-This project is licensed under the [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+This project is licensed under the MIT License
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
