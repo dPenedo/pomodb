@@ -7,9 +7,9 @@ class PomodoroConfig(TypedDict):
     action: str
 
 
-# WARN::changee to 25 and 5!
-WORK: PomodoroConfig = {"minutes": 1, "text": "🍅 Pomodoro", "action": "focus"}
-REST: PomodoroConfig = {"minutes": 1, "text": "󱕮  Rest", "action": "rest"}
+# For debug: changee 25 and 5
+WORK: PomodoroConfig = {"minutes": 25, "text": "🍅 Pomodoro", "action": "focus"}
+REST: PomodoroConfig = {"minutes": 5, "text": "󱕮  Rest", "action": "rest"}
 LOG_FILE = "log.txt"
 
 DB_FILENAME = "pomodoros.db"
