@@ -23,8 +23,4 @@ def parse_args():
 
     _ = subparsers.add_parser("stats", help="View previous stats")
     _ = subparsers.add_parser("help", help="Get help about this pomodoro")
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
-
     return parser.parse_args()

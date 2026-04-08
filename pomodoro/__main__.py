@@ -33,6 +33,23 @@ def main():
         show_help()
     elif command == "stats":
         print(get_stats())
+    elif command is None:
+        tag = input("Tag (enter to skip): ").strip() or None
+        pomodoro_tags = tag
+        print(get_total_time(num_pomodoros, WORK["minutes"], REST["minutes"]))
+        try:
+            for i in range(0, num_pomodoros):
+                pomodoro_position = f"{i+1} of {num_pomodoros}"
+                print(f"You are on pomodoro {prCyan(pomodoro_position)}")
+                _ = countdown(
+                    WORK["minutes"],
+                    WORK["text"],
+                    WORK["action"],
+                    pomodoro_tags,
+                )
+                _ = countdown(REST["minutes"], REST["text"], REST["action"])
+        except KeyboardInterrupt:
+            print("\n👋 Session is over.")
     else:
         print("Unknown command")
 
