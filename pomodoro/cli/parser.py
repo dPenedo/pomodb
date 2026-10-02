@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 
 def parse_args():
@@ -20,7 +19,9 @@ def parse_args():
         type=str,
         help="Tags of pomodoros",
     )
-
     _ = subparsers.add_parser("stats", help="View previous stats")
     _ = subparsers.add_parser("help", help="Get help about this pomodoro")
+    _ = subparsers.add_parser(
+        "create-config", help="Creates a config file with the default values"
+    )
     return parser.parse_args()

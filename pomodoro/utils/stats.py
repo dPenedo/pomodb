@@ -4,12 +4,12 @@ from pomodoro.db.queries import (
     get_list_of_tags,
     get_sum_of_pomodoros,
 )
-from pomodoro.utils.format import print_pomodoros_table, print_stats_from_dict
+from pomodoro.utils.format import get_pomodoros_table, get_stats_from_dict
 
 
 def get_stats() -> str:
     headers = ["Date", "Duration", "Tag"]
-    table = print_pomodoros_table(get_list_of_pomodoros(7, 20), headers)
+    table = get_pomodoros_table(get_list_of_pomodoros(7, 20), headers)
 
     general_stats = {
         "Total of Pomodoros": get_sum_of_pomodoros(-1),
@@ -20,7 +20,7 @@ def get_stats() -> str:
     }
 
     stats_text = f"""
-{print_stats_from_dict(general_stats)}
+{get_stats_from_dict(general_stats)}
 {table}
 
     """

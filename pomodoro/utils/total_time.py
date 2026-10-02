@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from pomodoro.utils.format import prPurple
+from pomodoro.utils.format import purple
 
 
 def get_total_time(number_of_pomodoros: int, work_minutes: int, rest_minutes: int):
@@ -9,6 +9,6 @@ def get_total_time(number_of_pomodoros: int, work_minutes: int, rest_minutes: in
     )
     end_time = now + timedelta(minutes=total_minutes_to_add)
 
-    from_to_text = f"from {prPurple(str(now.hour))}:{prPurple(str(now.minute))} to {prPurple(str(end_time.hour))}:{prPurple(str(end_time.minute))}"
+    from_to_text = f"from {purple(str(now.strftime('%H')))}:{purple(str(now.strftime('%M')))} to {purple(str(end_time.strftime('%H')))}:{purple(str(end_time.strftime('%M')))}"
 
     return f"Your pomodoros go {from_to_text} "

@@ -1,15 +1,12 @@
-from typing import List
 from pomodoro.db.db_utils import execute_non_query, execute_query
-from pomodoro.db.models import get_db_connection
-from pomodoro.utils.constants import POMODORO_TABLE
 
 
-def log_a_pomodoro(minutes: int, message: str, tag: str | None):
-    query = f"""
-        INSERT INTO {POMODORO_TABLE} ( minutes, message, tag)
+def insert_pomodoro(minutes: int, message: str, tag: str | None) -> bool:
+    query = """
+        INSERT INTO pomodoros ( minutes, message, tag)
         VALUES (?, ?, ?)
     """
-    success = execute_non_query(
+    return execute_non_query(
         query,
         (
             minutes,
@@ -17,28 +14,25 @@ def log_a_pomodoro(minutes: int, message: str, tag: str | None):
             tag,
         ),
     )
-    if success:
-        print("Pomodo registered")
 
 
 def get_sum_of_pomodoros(days: int) -> int:
     interval = f"-{9999 if days == -1 else days} days"
-    query = f"""
+    query = """
         SELECT COUNT(*)
-        FROM {POMODORO_TABLE}
+        FROM pomodoros 
         WHERE created_at >= (SELECT DATETIME('now', ?))
     """
     rows = execute_query(query, (interval,))
     return rows[0][0] if rows else 0
 
 
-def get_list_of_pomodoros(days: int, limit: int) -> List[str]:
+def get_list_of_pomodoros(days: int, limit: int) -> list[list[str]]:
     interval = f"-{9999 if days == -1 else days} days"
-    list_of_pomodoros = ["There are no pomodoros yet"]
-    query = f"""
-        SELECT *
-        FROM {POMODORO_TABLE}
-        WHERE created_at >= (SELECT DATETIME('now', ?))
+    query = """
+        SELECT DATETIME(created_at, 'localtime') AS created_at, minutes, tag
+        FROM pomodoros
+        WHERE created_at >= DATETIME('now', ?)
         ORDER  BY created_at DESC
         LIMIT ?
     """
@@ -49,40 +43,34 @@ def get_list_of_pomodoros(days: int, limit: int) -> List[str]:
             limit,
         ),
     )
-    if rows:
-        list_of_pomodoros.clear()
-    for e in rows:
-        pomodoro_list = []
-        pomodoro_list.append(str(e[1]))  # Date
-        pomodoro_list.append(str(e[2]))  # Duration
-        pomodoro_list.append(str(e[4]))  # Tag
-        list_of_pomodoros.append(pomodoro_list)
+    if not rows:
+        return [["There are no pomodoros yet"]]
 
-    return list_of_pomodoros
+    return [
+        [str(row["created_at"]), str(row["minutes"]), str(row["tag"] or "-")]
+        for row in rows
+    ]
 
 
-def get_list_of_tags(days: int) -> List[str]:
+def get_list_of_tags(days: int) -> list[str]:
     interval = f"-{9999 if days == -1 else days} days"
-    list_of_tags = ["There are not tags yet"]
-    query = f"""
+    query = """
             SELECT DISTINCT tag
-            FROM {POMODORO_TABLE}
-            WHERE created_at >= (SELECT DATETIME('now', ?))
+            FROM pomodoros
+            WHERE created_at >= DATETIME('now', ?)
         """
     rows = execute_query(query, (interval,))
-    if rows:
-        list_of_tags.clear()
-    for e in rows:
-        list_of_tags.append(str(e[0]))
-    return list_of_tags
+    if not rows:
+        return ["There are not tags yet"]
+    return [str(row[0] or "-") for row in rows]
 
 
-def get_average_of_days(days: int) -> int:
+def get_average_of_days(days: int) -> float:
     interval = f"-{days} days"
     average_of_tags = -1
-    query = f"""
-            SELECT COUNT(minutes)/ ?
-            FROM {POMODORO_TABLE}
+    query = """
+            SELECT COUNT(minutes) * 1.0/ ?
+            FROM pomodoros
             WHERE created_at >= (SELECT DATETIME('now', ?))
         """
     average_output = execute_query(
@@ -93,5 +81,5 @@ def get_average_of_days(days: int) -> int:
         ),
     )
     if average_output:
-        average_of_tags = int(average_output[0][0])
+        average_of_tags = round(average_output[0][0], 1)
     return average_of_tags
