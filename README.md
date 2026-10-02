@@ -1,64 +1,78 @@
-# 🍅 Pomodoro CLI
+# pomodb
 
-A lightweight, no-dependency command-line Pomodoro timer with persistent stats and desktop notifications.
+A Pomodoro timer for the terminal that stores every session in SQLite.
 
----
+I spend most of the day in a terminal, so I wanted the timer there too. Most Pomodoro apps forget a session as soon as it ends; pomodb keeps each one with an optional tag, so at the end of the week I can see how many pomodoros actually went to each project.
 
-## ✨ Features
+It only uses the Python standard library.
 
-- ⏱ Start and customize Pomodoro sessions
-- 📌 Add tags to your sessions
-- 📊 Track stats over time with SQLite
-- 🔔 Sends desktop notifications on Linux when pomodoros and breaks end
-- 📦 No external dependencies
-- 🧼 Self-contained and easy to read
+## Requirements
 
----
+- Python 3.11 or newer.
+- `ffplay` (part of FFmpeg) to play the gong at the start and end of each period.
+- `notify-send` for desktop notifications (optional, Linux only).
 
-## 🔧 Requirements
+## Installation
 
-- Python 3.10+
-- SQLite (built into Python)
-
----
-
-## ▶️ How to use it?
-
-Clone the repo and run from the project root:
-
-```bash
-python -m pomodoro start             # Start a session (25 minutes)
-python -m pomodoro start -n 2        # Run 2 pomodoros (default: 4)
-python -m pomodoro start -t writing  # Start a session with a tag
-python -m pomodoro stats             # View stats and history
-python -m pomodoro help              # Show CLI help
+```sh
+git clone https://github.com/dPenedo/pomodb.git
+cd pomodb
+pipx install .
 ```
 
-## What gets saved?
+This installs the `pomodb` command. `uv tool install .` works too. To run it without installing, use `python -m pomodoro` from the repository root.
 
-Each completed pomodoro is stored in a local SQLite database with the following fields:
+## Usage
 
-- 🆔 `id`: A unique identifier
-- 🕒 `created_at`: Date and time when the session ended
-- ⏳ `minutes`: Duration of the session
-- 📝 `message`: Currently always should show "🍅 Pomodoro", in the future it could be expanded
-- 📌 `tag`: Optional tag for filtering or grouping
+```sh
+pomodb                          # Asks for a tag and starts 4 pomodoros
+pomodb start                    # Starts 4 pomodoros without a tag
+pomodb start -n 2 -t writing    # 2 pomodoros tagged "writing"
+pomodb stats                    # Totals, tags and the last 20 pomodoros
+pomodb create-config            # Writes the default config file
+pomodb help
+```
 
-This allows you to:
+Before starting, it prints the time at which the whole session will end. `Ctrl+C` stops the session; pomodoros that were already finished stay saved.
 
-- Count sessions in a given time range
-- Calculate your daily average
-- List recent pomodoros with tags or notes
+## Configuration
 
----
+pomodb works without a config file. To change the defaults, create one:
 
-## 🔔 Notifications
+```sh
+pomodb create-config
+```
 
-If you're on Linux and have `notify-send` available, you’ll get desktop notifications when each pomodoro or rest period ends. No configuration needed.
+It is written to `~/.config/pomodb/config.toml` (or `$XDG_CONFIG_HOME/pomodb/` if that variable is set):
 
----
+```toml
+[pomodoro]
+minutes = 25
+break_minutes = 5
+
+[notifications]
+enabled = true
+```
+
+Any key you leave out falls back to its default value.
+
+## Stored data
+
+Each finished pomodoro is saved in `~/.local/share/pomodb/pomodoros.db` (or `$XDG_DATA_HOME/pomodb/`), in a table called `pomodoros`:
+
+- `id`: unique identifier.
+- `created_at`: when the pomodoro finished, in UTC.
+- `minutes`: duration of the pomodoro.
+- `message`: always `🍅 Pomodoro` for now.
+- `tag`: the session tag, or `NULL` if none was given.
+
+Since it is a plain SQLite file, you can query it directly for anything `pomodb stats` does not show:
+
+```sh
+sqlite3 ~/.local/share/pomodb/pomodoros.db \
+  "SELECT tag, COUNT(*) FROM pomodoros GROUP BY tag ORDER BY 2 DESC"
+```
 
 ## License
 
-This project is licensed under the MIT License
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[MIT](LICENSE)
